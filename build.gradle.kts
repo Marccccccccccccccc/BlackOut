@@ -17,9 +17,6 @@ repositories {
         name = "meteor-maven-snapshots"
         url = uri("https://maven.meteordev.org/snapshots")
     }
-    flatDir {
-        dirs("libs")
-    }
 }
 
 dependencies {
@@ -30,9 +27,7 @@ dependencies {
 
     // Meteor
     modImplementation("meteordevelopment:meteor-client:${properties["meteor_version"] as String}-SNAPSHOT")
-
-    // Baritone (local nightly build for 1.21.11)
-    modCompileOnly(files("libs/baritone-api-fabric-1.15.0-2-gf7a53504.jar"))
+    modCompileOnly("meteordevelopment:baritone:${properties["minecraft_version"] as String}-SNAPSHOT")
 }
 
 loom {
