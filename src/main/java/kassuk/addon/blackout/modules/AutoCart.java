@@ -223,12 +223,12 @@ public class AutoCart extends BlackOutModule {
         if (autoIgnite.get()) {
             String status = isPlacing ? "Placing" : "Breaking";
             if (currentTarget != null) {
-                return currentTarget.getName().getString() + ", " + status;
+                return currentTarget.getName().getString() + " " + status;
             }
             return status;
         } else {
             if (currentTarget != null) {
-                return currentTarget.getName().getString() + ", " + placeCounter;
+                return currentTarget.getName().getString() + " " + placeCounter;
             }
             return String.valueOf(placeCounter);
         }
@@ -255,7 +255,6 @@ public class AutoCart extends BlackOutModule {
             case IGNITE -> igniteStageColor.get();
         };
 
-        // Render at rail height (thin box at bottom of block)
         Box box = new Box(
             renderPos.getX(), renderPos.getY(), renderPos.getZ(),
             renderPos.getX() + 1.0, renderPos.getY() + 0.125, renderPos.getZ() + 1.0
