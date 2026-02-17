@@ -1,5 +1,6 @@
 package kassuk.addon.blackout.managers;
 
+import kassuk.addon.blackout.enums.MovementCorrection;
 import kassuk.addon.blackout.enums.RotationType;
 import kassuk.addon.blackout.events.PreRotationEvent;
 import kassuk.addon.blackout.globalsettings.RotationSettings;
@@ -47,6 +48,8 @@ public class RotationManager {
     private long key = 0;
 
     private Vec3d eyePos = new Vec3d(0, 0, 0);
+    private Vec3d lastPos = new Vec3d(0, 0, 0);
+    private boolean shouldCorrectMovement = false;
 
     public RotationManager() {
         MeteorClient.EVENT_BUS.subscribe(this);
@@ -59,6 +62,14 @@ public class RotationManager {
 
         currentDir[0] = lastDir[0];
         currentDir[1] = lastDir[1];
+
+        // Initialize last position if needed
+        if (mc.player != null && lastPos.equals(Vec3d.ZERO)) {
+            lastPos = mc.player.getEntityPos();
+        }
+
+        // Reset movement correction flag each tick
+        shouldCorrectMovement = false;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -106,6 +117,8 @@ public class RotationManager {
         unsent = false;
         onPreRotate();
         if (!updateShouldRotate()) {
+            Vec3d currentPos = new Vec3d(packet.getX(0), packet.getY(0), packet.getZ(0));
+            applyMovementCorrection(currentPos, packet.getYaw(0));
             return packet;
         }
 
@@ -113,26 +126,34 @@ public class RotationManager {
         updateNextRotation();
 
         if (rotated) {
+            Vec3d currentPos = new Vec3d(packet.getX(0), packet.getY(0), packet.getZ(0));
+            applyMovementCorrection(currentPos, next[0]);
             return new PlayerMoveC2SPacket.Full(packet.getX(0), packet.getY(0), packet.getZ(0), next[0], next[1], packet.isOnGround(), false);
         }
 
+        Vec3d currentPos = new Vec3d(packet.getX(0), packet.getY(0), packet.getZ(0));
+        applyMovementCorrection(currentPos, lastDir[0]);
         return new PlayerMoveC2SPacket.PositionAndOnGround(packet.getX(0), packet.getY(0), packet.getZ(0), packet.isOnGround(), false);
     }
 
     public PlayerMoveC2SPacket onPositionOnGround(PlayerMoveC2SPacket.PositionAndOnGround packet) {
         unsent = false;
         onPreRotate();
+        Vec3d currentPos = new Vec3d(packet.getX(0), packet.getY(0), packet.getZ(0));
         if (!updateShouldRotate()) {
+            applyMovementCorrection(currentPos, mc.player.getYaw());
             return packet;
         }
 
-        setEyePos(new Vec3d(packet.getX(0), packet.getY(0), packet.getZ(0)));
+        setEyePos(currentPos);
         updateNextRotation();
 
         if (rotated) {
+            applyMovementCorrection(currentPos, next[0]);
             return new PlayerMoveC2SPacket.Full(packet.getX(0), packet.getY(0), packet.getZ(0), next[0], next[1], packet.isOnGround(), false);
         }
 
+        applyMovementCorrection(currentPos, lastDir[0]);
         return packet;
     }
 
@@ -296,6 +317,77 @@ public class RotationManager {
 
     private void setEyePos(Vec3d vec3d) {
         eyePos = vec3d.add(0, mc.player.getEyeHeight(mc.player.getPose()), 0);
+    }
+
+    /**
+     * Checks if movement correction should be applied based on the movement direction
+     * and current rotation to avoid sprinting sideways detection by anticheats.
+     *
+     * @param currentPos Current player position
+     * @param yaw Current yaw being sent to server
+     * @return True if movement should be corrected
+     */
+    private boolean shouldApplyMovementCorrection(Vec3d currentPos, float yaw) {
+        MovementCorrection mode = SettingUtils.movementCorrection();
+
+        if (mode == MovementCorrection.OFF || !shouldRotate) {
+            return false;
+        }
+
+        if (mode == MovementCorrection.CHANGE_LOOK) {
+            // CHANGE_LOOK mode uses vanilla rotation, which is handled elsewhere
+            return false;
+        }
+
+        // Calculate movement direction
+        Vec3d movement = currentPos.subtract(lastPos);
+        if (movement.horizontalLength() < 0.01) {
+            // Not moving enough to care
+            return false;
+        }
+
+        // Calculate movement yaw (direction of travel)
+        double movementYaw = Math.toDegrees(Math.atan2(movement.z, movement.x)) - 90;
+
+        // Calculate angle difference between movement direction and look direction
+        double angleDiff = Math.abs(RotationUtils.yawAngle(yaw, (float) movementYaw));
+
+        // If angle difference is significant (more than 45 degrees), apply correction
+        return angleDiff > 45;
+    }
+
+    /**
+     * Applies movement correction by potentially modifying player state.
+     * For STRICT mode: Slows down movement when rotating
+     * For SILENT mode: Adjusts movement to align with rotation
+     */
+    private void applyMovementCorrection(Vec3d currentPos, float yaw) {
+        MovementCorrection mode = SettingUtils.movementCorrection();
+
+        if (mode == MovementCorrection.STRICT || mode == MovementCorrection.SILENT) {
+            // For STRICT and SILENT modes, we set a flag that can be used by other systems
+            // to modify player movement (e.g., disable sprinting, adjust speed)
+            shouldCorrectMovement = shouldApplyMovementCorrection(currentPos, yaw);
+
+            // STRICT mode: Simply flag that movement should be corrected
+            // The actual correction (stopping sprint, etc.) would be implemented
+            // in modules that control movement
+
+            // SILENT mode: Would involve more complex movement adjustment
+            // This would require intercepting input and adjusting movement vectors
+            // to better align with the rotation direction
+        }
+
+        // Update last position for next calculation
+        lastPos = currentPos;
+    }
+
+    /**
+     * Returns true if movement correction is currently being applied.
+     * Modules can use this to adjust their behavior (e.g., disable sprinting).
+     */
+    public boolean isCorrectingMovement() {
+        return shouldCorrectMovement;
     }
 
     public void addHistory(double yaw, double pitch) {

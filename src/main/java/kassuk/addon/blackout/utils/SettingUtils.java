@@ -1,5 +1,6 @@
 package kassuk.addon.blackout.utils;
 
+import kassuk.addon.blackout.enums.MovementCorrection;
 import kassuk.addon.blackout.enums.RotationType;
 import kassuk.addon.blackout.enums.SwingState;
 import kassuk.addon.blackout.enums.SwingType;
@@ -19,6 +20,7 @@ import java.util.function.Predicate;
  */
 
 public class SettingUtils {
+    private static final AntiCheatSettings anticheat = Modules.get().get(AntiCheatSettings.class);
     private static final FacingSettings facing = Modules.get().get(FacingSettings.class);
     private static final RangeSettings range = Modules.get().get(RangeSettings.class);
     private static final RaytraceSettings raytrace = Modules.get().get(RaytraceSettings.class);
@@ -132,5 +134,10 @@ public class SettingUtils {
     }
     public static boolean cc() {
         return server.cc.get();
+    }
+
+    // AntiCheat
+    public static MovementCorrection movementCorrection() {
+        return anticheat.movementCorrection.get();
     }
 }

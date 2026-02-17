@@ -57,6 +57,7 @@ public class BlackOut extends MeteorAddon {
         modules.add(new AutoCart());
         modules.add(new AutoMoan());
         modules.add(new AutoPearl());
+        modules.add(new AutoPot());
         initializeAutoPVP(modules);
         modules.add(new AutoTrapPlus());
         //modules.add(new BedAuraPlus());
@@ -100,6 +101,7 @@ public class BlackOut extends MeteorAddon {
     }
 
     private void initializeSettings(Modules modules) {
+        modules.add(new AntiCheatSettings());
         modules.add(new FacingSettings());
         modules.add(new RangeSettings());
         modules.add(new RaytraceSettings());
