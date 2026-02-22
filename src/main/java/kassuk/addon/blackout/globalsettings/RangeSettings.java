@@ -5,9 +5,11 @@ import kassuk.addon.blackout.BlackOutModule;
 import kassuk.addon.blackout.utils.OLEPOSSUtils;
 import kassuk.addon.blackout.utils.RotationUtils;
 import kassuk.addon.blackout.utils.SettingUtils;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.*;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * @author OLEPOSSU
@@ -238,12 +240,12 @@ public class RangeSettings extends BlackOutModule {
     public double placeRangeTo(BlockPos pos, Vec3d from) {
         Box pBB = mc.player.getBoundingBox();
         if (from == null) {
-            from = mc.player.getEyePos();
             Vec3d pPos = mc.player.getEntityPos();
             switch (placeRangeFrom.get()) {
                 case Middle ->
-                    ((IVec3d) from).meteor$set((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minZ + pBB.maxZ) / 2);
-                case Feet -> ((IVec3d) from).meteor$set(pPos.x, pPos.y, pPos.z);
+                    from = new Vec3d((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minZ + pBB.maxZ) / 2);
+                case Feet -> from = new Vec3d(pPos.x, pPos.y, pPos.z);
+                default -> from = mc.player.getEyePos();
             }
         }
 
@@ -292,11 +294,11 @@ public class RangeSettings extends BlackOutModule {
     public double attackRangeTo(Box bb, Vec3d feet, Vec3d from, boolean countReduce) {
         Box pBB = mc.player.getBoundingBox();
         if (from == null) {
-            from = mc.player.getEyePos();
             switch (attackRangeFrom.get()) {
                 case Middle ->
-                    ((IVec3d) from).meteor$set((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minZ + pBB.maxZ) / 2);
+                    from = new Vec3d((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minZ + pBB.maxZ) / 2);
                 case Feet -> from = mc.player.getEntityPos();
+                default -> from = mc.player.getEyePos();
             }
         } else {
             switch (attackRangeFrom.get()) {
@@ -344,12 +346,14 @@ public class RangeSettings extends BlackOutModule {
         }
 
         if (dist.getZ() > 0.0) {
-            ((IVec3d) rangePos).meteor$setXZ(rangePos.x, rangePos.z + halfWidth);
+            rangePos = new Vec3d(rangePos.x, rangePos.y, rangePos.z + halfWidth);
         } else if (dist.getZ() < 0.0) {
-            ((IVec3d) rangePos).meteor$setXZ(rangePos.x, rangePos.z - halfWidth);
+            rangePos = new Vec3d(rangePos.x, rangePos.y, rangePos.z - halfWidth);
         } else if (dist.getX() > 0.0) {
-            ((IVec3d) rangePos).meteor$setXZ(rangePos.x + halfWidth, rangePos.z);
-        } else ((IVec3d) rangePos).meteor$setXZ(rangePos.x - halfWidth, rangePos.z);
+            rangePos = new Vec3d(rangePos.x + halfWidth, rangePos.y, rangePos.z);
+        } else {
+            rangePos = new Vec3d(rangePos.x - halfWidth, rangePos.y, rangePos.z);
+        }
 
 
         Vec3d vec2 = rangePos.subtract(startPos);
@@ -401,11 +405,11 @@ public class RangeSettings extends BlackOutModule {
         Box pBB = mc.player.getBoundingBox();
         Vec3d pPos = mc.player.getEntityPos();
         if (from == null) {
-            from = mc.player.getEyePos();
             switch (miningRangeFrom.get()) {
                 case Middle ->
-                    ((IVec3d) from).meteor$set((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minX + pBB.maxX) / 2);
-                case Feet -> ((IVec3d) from).meteor$set(pPos.x, pPos.y, pPos.z);
+                    from = new Vec3d((pBB.minX + pBB.maxX) / 2, (pBB.minY + pBB.maxY) / 2, (pBB.minX + pBB.maxX) / 2);
+                case Feet -> from = new Vec3d(pPos.x, pPos.y, pPos.z);
+                default -> from = mc.player.getEyePos();
             }
         }
 

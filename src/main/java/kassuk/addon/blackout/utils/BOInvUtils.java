@@ -1,18 +1,14 @@
 package kassuk.addon.blackout.utils;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import kassuk.addon.blackout.managers.Managers;
 import kassuk.addon.blackout.mixins.ComponentHasherNetworkHandlerAccessor;
-import meteordevelopment.meteorclient.mixin.ClientPlayNetworkHandlerAccessor;
 import meteordevelopment.meteorclient.mixininterface.IClientPlayerInteractionManager;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.ClickSlotC2SPacket;
 import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.screen.sync.ComponentChangesHash;
 import net.minecraft.screen.sync.ItemStackHash;

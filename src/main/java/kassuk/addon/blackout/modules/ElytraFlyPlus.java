@@ -2,14 +2,10 @@ package kassuk.addon.blackout.modules;
 
 import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
-import kassuk.addon.blackout.managers.Managers;
 import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.*;
-import meteordevelopment.meteorclient.utils.player.ChatUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
@@ -168,7 +164,6 @@ public class ElytraFlyPlus extends BlackOutModule {
     private void constantiamTick(PlayerMoveEvent event) {
         Vec3d motion = getMotion(mc.player.getVelocity());
         if (motion != null) {
-            ((IVec3d) event.movement).meteor$set(motion.getX(), motion.getY(), motion.getZ());
             event.movement = motion;
         }
     }
@@ -223,7 +218,7 @@ public class ElytraFlyPlus extends BlackOutModule {
             y = up.get();
         }
 
-        ((IVec3d) event.movement).meteor$set(x, y, z);
+        event.movement = new Vec3d(x, y, z);
         mc.player.setVelocity(0, 0, 0);
     }
 
@@ -241,7 +236,7 @@ public class ElytraFlyPlus extends BlackOutModule {
             yaw += s > 0 ? -135 : s < 0 ? 135 : 180;
         } else {
             moving = s != 0;
-            yaw += s > 0 ? -90 : s < 0 ? 90 : 0;
+        yaw += s > 0 ? -90 : s < 0 ? 90 : 0;
         }
         this.yaw = yaw;
     }
@@ -281,8 +276,11 @@ public class ElytraFlyPlus extends BlackOutModule {
         if (mc.options.sneakKey.isPressed() && !mc.options.jumpKey.isPressed()) {
             y = -down.get();
         }
+        if (!mc.options.sneakKey.isPressed() && mc.options.jumpKey.isPressed()) {
+            y = up.get();
+        }
 
-        ((IVec3d) event.movement).meteor$set(x, y, z);
+        event.movement = new Vec3d(x, y, z);
         mc.player.setVelocity(0, 0, 0);
     }
 

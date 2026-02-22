@@ -1,9 +1,7 @@
 package kassuk.addon.blackout.modules;
 
-import com.mojang.brigadier.suggestion.Suggestion;
 import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
-import kassuk.addon.blackout.mixins.*;
 import kassuk.addon.blackout.utils.PacketNames;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.settings.PacketListSetting;
@@ -12,34 +10,11 @@ import meteordevelopment.meteorclient.settings.SettingGroup;
 import meteordevelopment.meteorclient.utils.network.PacketUtils;
 import meteordevelopment.orbit.EventHandler;
 import meteordevelopment.orbit.EventPriority;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.*;
-import net.minecraft.network.packet.c2s.config.ReadyC2SPacket;
-import net.minecraft.network.packet.c2s.handshake.HandshakeC2SPacket;
-import net.minecraft.network.packet.c2s.login.EnterConfigurationC2SPacket;
-import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
-import net.minecraft.network.packet.c2s.login.LoginKeyC2SPacket;
-import net.minecraft.network.packet.c2s.login.LoginQueryResponseC2SPacket;
-import net.minecraft.network.packet.c2s.play.*;
-import net.minecraft.network.packet.c2s.query.QueryPingC2SPacket;
-import net.minecraft.network.packet.c2s.query.QueryRequestC2SPacket;
-import net.minecraft.network.packet.s2c.common.*;
-import net.minecraft.network.packet.s2c.config.DynamicRegistriesS2CPacket;
-import net.minecraft.network.packet.s2c.config.FeaturesS2CPacket;
-import net.minecraft.network.packet.s2c.config.ReadyS2CPacket;
-import net.minecraft.network.packet.s2c.login.*;
-import net.minecraft.network.packet.s2c.play.*;
-import net.minecraft.network.packet.s2c.query.PingResultS2CPacket;
-import net.minecraft.network.packet.s2c.query.QueryResponseS2CPacket;
-import net.minecraft.recipe.RecipeEntry;
-import net.minecraft.stat.Stat;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.village.TradeOffer;
-import net.minecraft.village.TradeOfferList;
 
-import java.util.*;
+import java.util.Set;
 
 /**
  * @author OLEPOSSU

@@ -1,6 +1,5 @@
 package kassuk.addon.blackout.utils;
 
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -41,8 +40,6 @@ public class MovementUtils {
         double z = Math.abs(zm) <= Math.abs(zd) ? zm : zd;
 
         y(movement, x, z, step, reverseStep);
-
-        ((IVec3d) movement).meteor$setXZ(x, z);
     }
 
     private static void y(Vec3d movement, double x, double z, int step, int rev) {
@@ -54,8 +51,7 @@ public class MovementUtils {
             double s = getStep(mc.player.getBoundingBox().offset(x, 0, z), step);
 
             if (s > 0) {
-                ((IVec3d) movement).meteor$setY(s);
-                mc.player.setVelocity(mc.player.getVelocity().x, 0, mc.player.getVelocity().z);
+                mc.player.setVelocity(mc.player.getVelocity().x, s, mc.player.getVelocity().z);
             }
             return;
         }
@@ -67,8 +63,7 @@ public class MovementUtils {
             double s = getReverse(mc.player.getBoundingBox(), rev);
 
             if (s > 0) {
-                ((IVec3d) movement).meteor$setY(-s);
-                mc.player.setVelocity(mc.player.getVelocity().x, 0, mc.player.getVelocity().z);
+                mc.player.setVelocity(mc.player.getVelocity().x, -s, mc.player.getVelocity().z);
             }
         }
     }

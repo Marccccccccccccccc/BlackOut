@@ -4,7 +4,6 @@ import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
 import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.DoubleSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -14,6 +13,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.util.math.Vec3d;
 
 public class JesusPlus extends BlackOutModule {
     public JesusPlus() {
@@ -59,7 +59,8 @@ public class JesusPlus extends BlackOutModule {
             else inWater = false;
 
             if ((mc.player.isTouchingWater() && !mc.player.isSubmergedInWater()) || (mc.player.isInLava() && !mc.player.isSubmergedIn(FluidTags.LAVA))) {
-                ((IVec3d) mc.player.getVelocity()).meteor$setY(bob.get());
+                Vec3d vel = mc.player.getVelocity();
+                mc.player.setVelocity(vel.x, bob.get(), vel.z);
 
                 if (toggle.get() && !(mc.player.isInLava() && !mc.player.isSubmergedIn(FluidTags.LAVA)) && !isSlowed) {
                     double motion = water_speed.get();
@@ -76,9 +77,9 @@ public class JesusPlus extends BlackOutModule {
                     double x = Math.cos(Math.toRadians(yaw + 90.0f));
                     double z = Math.sin(Math.toRadians(yaw + 90.0f));
                     if (move) {
-                        ((IVec3d) event.movement).meteor$setXZ(motion * x, motion * z);
+                        event.movement = new Vec3d(motion * x, event.movement.y, motion * z);
                     } else {
-                        ((IVec3d) event.movement).meteor$setXZ(0, 0);
+                        event.movement = new Vec3d(0, event.movement.y, 0);
                     }
                 }
             }

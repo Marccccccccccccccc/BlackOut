@@ -4,11 +4,11 @@ import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
 import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.world.Timer;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * @author KassuK
@@ -125,7 +125,7 @@ public class FlightPlus extends BlackOutModule {
                     z = Math.sin(Math.toRadians(yaw)) * speed.get();
 
                 }
-                ((IVec3d) event.movement).meteor$set(x, y, z);
+                event.movement = new Vec3d(x, y, z);
             }
             if (flyMode.get().equals(FlightMode.Jump)){
                 if (mc.options.jumpKey.wasPressed()){
@@ -143,11 +143,11 @@ public class FlightPlus extends BlackOutModule {
                     z = Math.sin(Math.toRadians(yaw)) * speed.get();
 
                 }
-                ((IVec3d) event.movement).meteor$setXZ(x, z);
+                event.movement = new Vec3d(x, event.movement.y, z);
             }
             if (flyMode.get().equals(FlightMode.Glide)){
                 if (!mc.player.isOnGround())
-                    ((IVec3d) event.movement).meteor$setY(-glideAmount.get());
+                    event.movement = new Vec3d(event.movement.x, -glideAmount.get(), event.movement.z);
 
             }
         }

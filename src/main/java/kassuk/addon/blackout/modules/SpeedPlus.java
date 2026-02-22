@@ -4,7 +4,6 @@ import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
 import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
 import meteordevelopment.meteorclient.events.packets.PacketEvent;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.world.Timer;
@@ -16,6 +15,7 @@ import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * @author OLEPOSSU
@@ -215,7 +215,7 @@ public class SpeedPlus extends BlackOutModule {
                     jumpPhase = 4;
                 }
                 if (jumpPhase == 2) {
-                    ((IVec3d) event.movement).meteor$setY(0.4);
+                    event.movement = new Vec3d(event.movement.x, 0.4, event.movement.z);
                     velocity *= 1.85;
                     jumpPhase = 3;
                 }
@@ -248,9 +248,9 @@ public class SpeedPlus extends BlackOutModule {
             switch (mode.get()) {
                 case CCStrafe, Instant -> {
                     if (move) {
-                        ((IVec3d) event.movement).meteor$set(motion * x, y, motion * z);
+                        event.movement = new Vec3d(motion * x, y, motion * z);
                     } else {
-                        ((IVec3d) event.movement).meteor$set(0, y, 0);
+                        event.movement = new Vec3d(0, y, 0);
                     }
                 }
                 case Accelerate -> {
@@ -261,7 +261,7 @@ public class SpeedPlus extends BlackOutModule {
                         az = z;
                     }
 
-                    ((IVec3d) event.movement).meteor$setXZ(speed.get() * ax * acceleration, speed.get() * az * acceleration);
+                    event.movement = new Vec3d(speed.get() * ax * acceleration, event.movement.y, speed.get() * az * acceleration);
                 }
             }
         }

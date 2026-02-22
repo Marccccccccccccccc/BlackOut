@@ -4,7 +4,6 @@ import kassuk.addon.blackout.BlackOut;
 import kassuk.addon.blackout.BlackOutModule;
 import kassuk.addon.blackout.mixins.IRaycastContext;
 import kassuk.addon.blackout.utils.meteor.BODamageUtils;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.settings.*;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -134,7 +133,6 @@ public class RaytraceSettings extends BlackOutModule {
         Any
     }
 
-    private final Vec3d vec = new Vec3d(0, 0, 0);
     public RaycastContext raycastContext;
     public BlockHitResult result;
     public int hit = 0;
@@ -168,9 +166,9 @@ public class RaytraceSettings extends BlackOutModule {
                 return result.getBlockPos().equals(pos);
             }
             case Sides -> {
-                ((IVec3d) vec).meteor$set(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
+               Vec3d sideVec = new Vec3d(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
                 for (Direction dir : Direction.values()) {
-                    ((IRaycastContext) raycastContext).blackout$setEnd(vec.add(dir.getOffsetX() / 2f, dir.getOffsetY() / 2f, dir.getOffsetZ() / 2f));
+                    ((IRaycastContext) raycastContext).blackout$setEnd(sideVec.add(dir.getOffsetX() / 2f, dir.getOffsetY() / 2f, dir.getOffsetZ() / 2f));
 
                     result = BODamageUtils.raycast(raycastContext);
                     if (result.getBlockPos().equals(pos)) {
@@ -179,13 +177,13 @@ public class RaytraceSettings extends BlackOutModule {
                 }
             }
             case Exposure -> {
-                ((IVec3d) vec).meteor$set(pos.getX(), pos.getY(), pos.getZ());
+                Vec3d expVec = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 
                 hit = 0;
                 for (int x = 0; x <= 2; x += 1) {
                     for (int y = 0; y <= 2; y += 1) {
                         for (int z = 0; z <= 2; z += 1) {
-                            ((IRaycastContext) raycastContext).blackout$setEnd(vec.add(0.1 + x * 0.4, 0.1 + y * 0.4, 0.1 + z * 0.4));
+                            ((IRaycastContext) raycastContext).blackout$setEnd(expVec.add(0.1 + x * 0.4, 0.1 + y * 0.4, 0.1 + z * 0.4));
 
                             result = BODamageUtils.raycast(raycastContext);
                             if (result.getBlockPos().equals(pos)) {
@@ -199,13 +197,13 @@ public class RaytraceSettings extends BlackOutModule {
                 }
             }
             case Any -> {
-                ((IVec3d) vec).meteor$set(pos.getX(), pos.getY(), pos.getZ());
+                Vec3d anyVec = new Vec3d(pos.getX(), pos.getY(), pos.getZ());
 
                 hit = 0;
                 for (int x = 0; x <= 2; x += 1) {
                     for (int y = 0; y <= 2; y += 1) {
                         for (int z = 0; z <= 2; z += 1) {
-                            ((IRaycastContext) raycastContext).blackout$setEnd(vec.add(0.1 + x * 0.4, 0.1 + y * 0.4, 0.1 + z * 0.4));
+                            ((IRaycastContext) raycastContext).blackout$setEnd(anyVec.add(0.1 + x * 0.4, 0.1 + y * 0.4, 0.1 + z * 0.4));
 
                             result = BODamageUtils.raycast(raycastContext);
                             if (result.getBlockPos().equals(pos)) {
@@ -228,21 +226,23 @@ public class RaytraceSettings extends BlackOutModule {
 
         switch (attackMode.get()) {
             case SinglePoint -> {
-                ((meteordevelopment.meteorclient.mixininterface.IRaycastContext) BODamageUtils.raycastContext).meteor$set(mc.player.getEyePos(), new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight.get(), (box.minZ + box.maxZ) / 2f), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
+                ((IRaycastContext) raycastContext).blackout$setStart(mc.player.getEyePos());
+                ((IRaycastContext) raycastContext).blackout$setEnd(new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight.get(), (box.minZ + box.maxZ) / 2f));
 
-                return BODamageUtils.raycast(BODamageUtils.raycastContext).getType() != HitResult.Type.BLOCK;
+                return BODamageUtils.raycast(raycastContext).getType() != HitResult.Type.BLOCK;
             }
             case DoublePoint -> {
-                ((meteordevelopment.meteorclient.mixininterface.IRaycastContext) BODamageUtils.raycastContext).meteor$set(mc.player.getEyePos(), new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight1.get(), (box.minZ + box.maxZ) / 2f), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
-                if (BODamageUtils.raycast(BODamageUtils.raycastContext).getType() != HitResult.Type.BLOCK) {
+                ((IRaycastContext) raycastContext).blackout$setStart(mc.player.getEyePos());
+                ((IRaycastContext) raycastContext).blackout$setEnd(new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight1.get(), (box.minZ + box.maxZ) / 2f));
+                if (BODamageUtils.raycast(raycastContext).getType() != HitResult.Type.BLOCK) {
                     return true;
                 }
 
-                ((meteordevelopment.meteorclient.mixininterface.IRaycastContext) BODamageUtils.raycastContext).meteor$set(mc.player.getEyePos(), new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight2.get(), (box.minZ + box.maxZ) / 2f), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, mc.player);
-                return BODamageUtils.raycast(BODamageUtils.raycastContext).getType() != HitResult.Type.BLOCK;
+                ((IRaycastContext) raycastContext).blackout$setEnd(new Vec3d((box.minX + box.maxX) / 2f, box.minY + attackHeight2.get(), (box.minZ + box.maxZ) / 2f));
+                return BODamageUtils.raycast(raycastContext).getType() != HitResult.Type.BLOCK;
             }
             case Exposure -> {
-                ((IVec3d) vec).meteor$set(box.minX, box.minY, box.minZ);
+                Vec3d expBox = new Vec3d(box.minX, box.minY, box.minZ);
                 double xw = box.maxX - box.minX;
                 double yh = box.maxY - box.minY;
                 double zw = box.maxZ - box.minZ;
@@ -251,7 +251,7 @@ public class RaytraceSettings extends BlackOutModule {
                 for (int x = 0; x <= 2; x += 1) {
                     for (int y = 0; y <= 2; y += 1) {
                         for (int z = 0; z <= 2; z += 1) {
-                            ((IRaycastContext) raycastContext).blackout$setEnd(vec.add(MathHelper.lerp(x / 2f, 0.1, xw - 0.1), MathHelper.lerp(y / 2f, 0.0, yh - 0.1), MathHelper.lerp(z / 2f, 0.1, zw - 0.1)));
+                            ((IRaycastContext) raycastContext).blackout$setEnd(expBox.add(MathHelper.lerp(x / 2f, 0.1, xw - 0.1), MathHelper.lerp(y / 2f, 0.0, yh - 0.1), MathHelper.lerp(z / 2f, 0.1, zw - 0.1)));
 
                             result = BODamageUtils.raycast(raycastContext);
                             if (result.getType() != HitResult.Type.BLOCK) {
@@ -265,7 +265,7 @@ public class RaytraceSettings extends BlackOutModule {
                 }
             }
             case Any -> {
-                ((IVec3d) vec).meteor$set(box.minX, box.minY, box.minZ);
+                Vec3d anyBox = new Vec3d(box.minX, box.minY, box.minZ);
                 double xw = box.maxX - box.minX;
                 double yh = box.maxY - box.minY;
                 double zw = box.maxZ - box.minZ;
@@ -273,7 +273,7 @@ public class RaytraceSettings extends BlackOutModule {
                 for (int x = 0; x <= 2; x += 1) {
                     for (int y = 0; y <= 2; y += 1) {
                         for (int z = 0; z <= 2; z += 1) {
-                            ((IRaycastContext) raycastContext).blackout$setEnd(vec.add(MathHelper.lerp(x / 2f, 0.1, xw - 0.1), MathHelper.lerp(y / 2f, 0.0, yh - 0.1), MathHelper.lerp(z / 2f, 0.1, zw - 0.1)));
+                            ((IRaycastContext) raycastContext).blackout$setEnd(anyBox.add(MathHelper.lerp(x / 2f, 0.1, xw - 0.1), MathHelper.lerp(y / 2f, 0.0, yh - 0.1), MathHelper.lerp(z / 2f, 0.1, zw - 0.1)));
 
                             result = BODamageUtils.raycast(raycastContext);
                             if (result.getType() != HitResult.Type.BLOCK) {

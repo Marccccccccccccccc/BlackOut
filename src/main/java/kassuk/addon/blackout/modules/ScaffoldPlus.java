@@ -13,7 +13,6 @@ import kassuk.addon.blackout.utils.SettingUtils;
 import meteordevelopment.meteorclient.events.entity.player.PlayerMoveEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
-import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -362,9 +361,8 @@ public class ScaffoldPlus extends BlackOutModule {
 
             if (jumpProgress > -1) {
                 if (jumpProgress < 3) {
-                    ((IVec3d) motion).meteor$setXZ(0, 0);
-                    ((IVec3d) motion).meteor$setY(velocities[jumpProgress]);
-                    ((IVec3d) mc.player.getVelocity()).meteor$setY(velocities[jumpProgress]);
+                    motion = new Vec3d(0, velocities[jumpProgress], 0);
+                    mc.player.setVelocity(mc.player.getVelocity().x, velocities[jumpProgress], mc.player.getVelocity().z);
                     jumpProgress++;
                 }
             }
